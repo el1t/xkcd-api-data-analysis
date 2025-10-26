@@ -57,12 +57,12 @@ suspend fun scrapeComics(client: HttpClient, json: Json) {
 		val requestQueue = mutableListOf<Job>()
 
 		for (comicId in missingComics) {
-			while (requestQueue.size > MAX_CONCURRENT_REQUESTS) {
-				requestQueue.removeAll { it.isCompleted }
-				delay(100.milliseconds)
-			}
 			requestQueue += launch {
 				scrapeComic(client, comicId)?.save(json)
+			}
+			while (requestQueue.size >= MAX_CONCURRENT_REQUESTS) {
+				requestQueue.removeAll { it.isCompleted }
+				delay(100.milliseconds)
 			}
 		}
 	}
