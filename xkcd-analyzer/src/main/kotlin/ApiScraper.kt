@@ -1,10 +1,78 @@
 package co.tsung.xkcd.analyzer
 
-fun main() {
-	val name = "Kotlin"
-	println("Hello, $name!")
+import co.tsung.xkcd.analyzer.model.XkcdComicInfo
+import io.ktor.client.*
+import io.ktor.client.call.*
+import io.ktor.client.engine.cio.*
+import io.ktor.client.plugins.contentnegotiation.*
+import io.ktor.client.request.*
+import io.ktor.http.*
+import io.ktor.serialization.kotlinx.json.*
+import kotlinx.coroutines.*
+import kotlinx.serialization.ExperimentalSerializationApi
+import kotlinx.serialization.json.Json
+import kotlinx.serialization.json.encodeToStream
+import java.nio.file.Files
+import kotlin.io.path.Path
+import kotlin.io.path.notExists
+import kotlin.io.path.outputStream
+import kotlin.time.Duration.Companion.milliseconds
 
-	for (i in 1..5) {
-		println("i = $i")
+@OptIn(ExperimentalSerializationApi::class)
+suspend fun main() {
+	val json = Json {
+		prettyPrint = true
+		prettyPrintIndent = "\t"
+	}
+
+	HttpClient(CIO) {
+		install(ContentNegotiation) {
+			json(json)
+		}
+	}.use { client ->
+		scrapeComics(client, json)
+	}
+}
+
+private val COMICS_DIR = Path("comics")
+private const val MAX_CONCURRENT_REQUESTS = 50
+
+suspend fun scrapeComics(client: HttpClient, json: Json) {
+	Files.createDirectories(COMICS_DIR)
+
+	val lastComic = client.get("https://xkcd.com/info.0.json").body<XkcdComicInfo>()
+	println("Latest comic #: ${lastComic.id}")
+
+	val missingComics = (1u..lastComic.id).filter { COMICS_DIR.resolve("$it.json").notExists() }
+	println("Comics to download: ${missingComics.size}")
+
+	withContext(Dispatchers.Default) {
+		val requestQueue = mutableListOf<Deferred<Unit>>()
+
+		for (comicId in missingComics) {
+			while (requestQueue.size > MAX_CONCURRENT_REQUESTS) {
+				requestQueue.removeAll { it.isCompleted }
+				delay(100.milliseconds)
+			}
+			requestQueue += async<Unit> {
+				scrapeComic(client, comicId)?.save(json)
+			}
+		}
+	}
+}
+
+suspend fun scrapeComic(client: HttpClient, comicId: UInt): XkcdComicInfo? {
+	val response = client.get("https://xkcd.com/$comicId/info.0.json")
+	if (!response.status.isSuccess()) {
+		println("Error scraping comic $comicId: ${response.status.description}")
+		return null
+	}
+	return response.body()
+}
+
+@OptIn(ExperimentalSerializationApi::class)
+fun XkcdComicInfo.save(json: Json) {
+	COMICS_DIR.resolve("$id.json").outputStream().use { outputStream ->
+		json.encodeToStream(this, outputStream)
 	}
 }

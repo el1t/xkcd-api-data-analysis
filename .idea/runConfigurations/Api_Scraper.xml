@@ -1,0 +1,11 @@
+<component name="ProjectRunConfigurationManager">
+  <configuration default="false" name="Api Scraper" type="JetRunConfigurationType">
+    <option name="MAIN_CLASS_NAME" value="co.tsung.xkcd.analyzer.ApiScraperKt" />
+    <module name="xkcd-analyzer.main" />
+    <shortenClasspath name="NONE" />
+    <option name="WORKING_DIRECTORY" value="$PROJECT_DIR$/scraper-out/" />
+    <method v="2">
+      <option name="Make" enabled="true" />
+    </method>
+  </configuration>
+</component>

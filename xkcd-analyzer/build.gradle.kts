@@ -21,6 +21,18 @@ dependencies {
 	// https://github.com/Kotlin/kotlinx.serialization/releases
 	implementation("org.jetbrains.kotlinx:kotlinx-serialization-json:1.9.0")
 
+	// https://github.com/ktorio/ktor/releases
+	val ktorVersion = "3.3.1"
+	implementation("io.ktor:ktor-client-core:$ktorVersion")
+	implementation("io.ktor:ktor-client-cio:$ktorVersion")
+	// Content negotiation
+	implementation("io.ktor:ktor-client-content-negotiation:$ktorVersion")
+	implementation("io.ktor:ktor-serialization-kotlinx-json:$ktorVersion")
+
+	// https://github.com/qos-ch/logback/releases
+	val logbackVersion = "1.5.19"
+	implementation("ch.qos.logback:logback-classic:$logbackVersion")
+
 	// Testing
 	// https://github.com/kotest/kotest/releases
 	val kotestVersion = "6.0.4"
