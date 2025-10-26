@@ -41,10 +41,17 @@ suspend fun scrapeComics(client: HttpClient, json: Json) {
 	Files.createDirectories(COMICS_DIR)
 
 	val lastComic = client.get("https://xkcd.com/info.0.json").body<XkcdComicInfo>()
+	println("\n========================\n")
 	println("Latest comic #: ${lastComic.id}")
 
 	val missingComics = (1u..lastComic.id).filter { COMICS_DIR.resolve("$it.json").notExists() }
+	println("Comics on disk: ${lastComic.id - missingComics.size.toUInt()}")
 	println("Comics to download: ${missingComics.size}")
+	// Avoid printing too many numbers
+	if (missingComics.size in 1..MAX_CONCURRENT_REQUESTS) {
+		println("(Specifically: $missingComics)")
+	}
+	println("\n========================\n")
 
 	withContext(Dispatchers.Default) {
 		val requestQueue = mutableListOf<Job>()
