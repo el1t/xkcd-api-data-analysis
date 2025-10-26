@@ -10,12 +10,14 @@ import io.ktor.http.*
 import io.ktor.serialization.kotlinx.json.*
 import kotlinx.coroutines.*
 import kotlinx.serialization.ExperimentalSerializationApi
+import kotlinx.serialization.SerializationException
 import kotlinx.serialization.json.Json
 import kotlinx.serialization.json.encodeToStream
 import java.nio.file.Files
 import kotlin.io.path.Path
-import kotlin.io.path.notExists
+import kotlin.io.path.exists
 import kotlin.io.path.outputStream
+import kotlin.system.exitProcess
 import kotlin.time.Duration.Companion.milliseconds
 
 @OptIn(ExperimentalSerializationApi::class)
@@ -36,6 +38,10 @@ suspend fun main() {
 
 private val COMICS_DIR = Path("comics")
 private const val MAX_CONCURRENT_REQUESTS = 50
+private val INVALID_COMIC_IDS = setOf(
+	// comic #404 throws a 404 error
+	404u,
+)
 
 suspend fun scrapeComics(client: HttpClient, json: Json) {
 	Files.createDirectories(COMICS_DIR)
@@ -44,7 +50,10 @@ suspend fun scrapeComics(client: HttpClient, json: Json) {
 	println("\n========================\n")
 	println("Latest comic #: ${lastComic.id}")
 
-	val missingComics = (1u..lastComic.id).filter { COMICS_DIR.resolve("$it.json").notExists() }
+	val missingComics = (1u..lastComic.id)
+		.filterNot { it in INVALID_COMIC_IDS }
+		.filterNot { comicId -> COMICS_DIR.resolve("$comicId.json").exists() }
+
 	println("Comics on disk: ${lastComic.id - missingComics.size.toUInt()}")
 	println("Comics to download: ${missingComics.size}")
 	// Avoid printing too many numbers
@@ -54,16 +63,27 @@ suspend fun scrapeComics(client: HttpClient, json: Json) {
 	println("\n========================\n")
 
 	withContext(Dispatchers.Default) {
-		val requestQueue = mutableListOf<Job>()
+		val requestQueue = mutableListOf<Deferred<Throwable?>>()
 
 		for (comicId in missingComics) {
-			requestQueue += launch {
-				scrapeComic(client, comicId)?.save(json)
+			requestQueue += async {
+				try {
+					scrapeComic(client, comicId)?.save(json)
+					null
+				} catch (e: SerializationException) {
+					e
+				}
 			}
-			while (requestQueue.size >= MAX_CONCURRENT_REQUESTS) {
-				requestQueue.removeAll { it.isCompleted }
+			while (requestQueue.count { it.isActive } >= MAX_CONCURRENT_REQUESTS) {
 				delay(100.milliseconds)
 			}
+		}
+
+		val errors = requestQueue.awaitAll().filterNotNull()
+		if (errors.isNotEmpty()) {
+			System.err.println("Encountered ${errors.size} serialization errors!\n")
+			System.err.println(errors.joinToString("\n\n"))
+			exitProcess(1)
 		}
 	}
 }
@@ -71,7 +91,7 @@ suspend fun scrapeComics(client: HttpClient, json: Json) {
 suspend fun scrapeComic(client: HttpClient, comicId: UInt): XkcdComicInfo? {
 	val response = client.get("https://xkcd.com/$comicId/info.0.json")
 	if (!response.status.isSuccess()) {
-		println("Error scraping comic $comicId: ${response.status.description}")
+		System.err.println("Received invalid response on $comicId: ${response.status.description}")
 		return null
 	}
 	return response.body()
