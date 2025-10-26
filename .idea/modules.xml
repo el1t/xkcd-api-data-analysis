@@ -2,6 +2,9 @@
 <project version="4">
   <component name="ProjectModuleManager">
     <modules>
+      <module fileurl="file://$PROJECT_DIR$/xkcd-analyzer.iml" filepath="$PROJECT_DIR$/xkcd-analyzer.iml" />
+      <module fileurl="file://$PROJECT_DIR$/.idea/modules/xkcd-analyzer.main.iml" filepath="$PROJECT_DIR$/.idea/modules/xkcd-analyzer.main.iml" />
+      <module fileurl="file://$PROJECT_DIR$/.idea/modules/xkcd-analyzer.test.iml" filepath="$PROJECT_DIR$/.idea/modules/xkcd-analyzer.test.iml" />
       <module fileurl="file://$PROJECT_DIR$/.idea/xkcd-gallery-data-analysis.iml" filepath="$PROJECT_DIR$/.idea/xkcd-gallery-data-analysis.iml" />
     </modules>
   </component>
