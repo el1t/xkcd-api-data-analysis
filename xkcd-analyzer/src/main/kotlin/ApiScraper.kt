@@ -47,14 +47,14 @@ suspend fun scrapeComics(client: HttpClient, json: Json) {
 	println("Comics to download: ${missingComics.size}")
 
 	withContext(Dispatchers.Default) {
-		val requestQueue = mutableListOf<Deferred<Unit>>()
+		val requestQueue = mutableListOf<Job>()
 
 		for (comicId in missingComics) {
 			while (requestQueue.size > MAX_CONCURRENT_REQUESTS) {
 				requestQueue.removeAll { it.isCompleted }
 				delay(100.milliseconds)
 			}
-			requestQueue += async<Unit> {
+			requestQueue += launch {
 				scrapeComic(client, comicId)?.save(json)
 			}
 		}
