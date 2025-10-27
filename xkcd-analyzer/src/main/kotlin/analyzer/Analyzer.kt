@@ -6,7 +6,7 @@ abstract class Analyzer(protected val name: String) {
 	abstract fun processComic(comic: XkcdComicInfo)
 
 	fun printReport() {
-		println("====== [$name] ======")
+		println("\n====== [$name] ======")
 		generateReport()
 	}
 

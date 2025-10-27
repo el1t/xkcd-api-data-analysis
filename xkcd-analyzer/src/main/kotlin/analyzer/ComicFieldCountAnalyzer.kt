@@ -2,7 +2,7 @@ package co.tsung.xkcd.analyzer.analyzer
 
 import co.tsung.xkcd.analyzer.model.XkcdComicInfo
 
-object ComicFieldCountAnalyzer : Analyzer("Field Analyzer") {
+object ComicFieldCountAnalyzer : Analyzer("Comic Field Count") {
 	private var totalComicCount = 0
 	private var extraPartsComics = mutableListOf<UInt>()
 	private val emptyRequiredFieldCounts = ComicFieldCounter()

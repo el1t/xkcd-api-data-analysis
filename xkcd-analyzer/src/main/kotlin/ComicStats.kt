@@ -1,7 +1,7 @@
 package co.tsung.xkcd.analyzer
 
-import co.tsung.xkcd.analyzer.analyzer.Analyzer
 import co.tsung.xkcd.analyzer.analyzer.ComicFieldCountAnalyzer
+import co.tsung.xkcd.analyzer.analyzer.ComicFieldLengthAnalyzer
 import co.tsung.xkcd.analyzer.model.XkcdComicInfo
 import kotlinx.serialization.ExperimentalSerializationApi
 import kotlinx.serialization.json.Json
@@ -10,8 +10,9 @@ import kotlin.io.path.extension
 import kotlin.io.path.inputStream
 import kotlin.io.path.walk
 
-private val ANALYZERS = listOf<Analyzer>(
+private val ANALYZERS = listOf(
 	ComicFieldCountAnalyzer,
+	ComicFieldLengthAnalyzer,
 )
 
 @OptIn(ExperimentalSerializationApi::class)
