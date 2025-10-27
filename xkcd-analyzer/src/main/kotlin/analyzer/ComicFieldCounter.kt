@@ -1,54 +1,45 @@
 package co.tsung.xkcd.analyzer.analyzer
 
+import co.tsung.xkcd.analyzer.model.ComicExtraPartsField
+import co.tsung.xkcd.analyzer.model.ComicExtraPartsField.Companion.get
+import co.tsung.xkcd.analyzer.model.ComicRequiredApiField
+import co.tsung.xkcd.analyzer.model.ComicRequiredApiField.Companion.get
 import co.tsung.xkcd.analyzer.model.XkcdComicInfo
 
 
 @ConsistentCopyVisibility
 data class ComicFieldCounter private constructor(
-	val fields: Map<String, MutableList<UInt>>,
-	val extraPartsFields: Map<String, MutableList<UInt>>,
+	val fields: Map<ComicRequiredApiField, MutableList<UInt>>,
+	val extraPartsFields: Map<ComicExtraPartsField, MutableList<UInt>>,
 ) {
 	constructor() : this(
 		fields = mapOf(
-			"month" to mutableListOf(),
-			"link" to mutableListOf(),
-			"year" to mutableListOf(),
-			"news" to mutableListOf(),
-			"safeTitle" to mutableListOf(),
-			"transcript" to mutableListOf(),
-			"altText" to mutableListOf(),
-			"imageUrl" to mutableListOf(),
-			"unsafeTitle" to mutableListOf(),
-			"day" to mutableListOf(),
+			ComicRequiredApiField.Month to mutableListOf(),
+			ComicRequiredApiField.Link to mutableListOf(),
+			ComicRequiredApiField.Year to mutableListOf(),
+			ComicRequiredApiField.News to mutableListOf(),
+			ComicRequiredApiField.SafeTitle to mutableListOf(),
+			ComicRequiredApiField.Transcript to mutableListOf(),
+			ComicRequiredApiField.AltText to mutableListOf(),
+			ComicRequiredApiField.ImageUrl to mutableListOf(),
+			ComicRequiredApiField.UnsafeTitle to mutableListOf(),
+			ComicRequiredApiField.Day to mutableListOf(),
 		),
 		extraPartsFields = mapOf(
-			"headerExtra" to mutableListOf(),
-			"pre" to mutableListOf(),
-			"post" to mutableListOf(),
-			"imgAttr" to mutableListOf(),
-			"inset" to mutableListOf(),
-			"links" to mutableListOf(),
+			ComicExtraPartsField.HeaderExtra to mutableListOf(),
+			ComicExtraPartsField.Pre to mutableListOf(),
+			ComicExtraPartsField.Post to mutableListOf(),
+			ComicExtraPartsField.ImgAttr to mutableListOf(),
+			ComicExtraPartsField.Inset to mutableListOf(),
+			ComicExtraPartsField.Links to mutableListOf(),
 		),
 	)
 
 	fun processRequiredStringFields(comic: XkcdComicInfo, filter: (value: String) -> Boolean) {
-		val stringFields = mapOf(
-			"month" to comic.month,
-			"link" to comic.link,
-			"year" to comic.year,
-			"news" to comic.news,
-			"safeTitle" to comic.safeTitle,
-			"transcript" to comic.transcript,
-			"altText" to comic.altText,
-			"imageUrl" to comic.imageUrl,
-			"unsafeTitle" to comic.unsafeTitle,
-			"day" to comic.day,
-		)
-
-		fields.forEach { (fieldName, fieldList) ->
-			val value = stringFields[fieldName] ?: return
+		fields.forEach { (field, comicList) ->
+			val value = comic[field]
 			if (filter(value)) {
-				fieldList += comic.id
+				comicList += comic.id
 			}
 		}
 
@@ -56,20 +47,11 @@ data class ComicFieldCounter private constructor(
 	}
 
 	fun processOptionalStringFields(comic: XkcdComicInfo, filter: (value: String?) -> Boolean) {
-		val optionalStringFields = mapOf(
-			"headerExtra" to comic.extraParts?.headerExtra,
-			"pre" to comic.extraParts?.pre,
-			"post" to comic.extraParts?.post,
-			"imgAttr" to comic.extraParts?.imgAttr,
-			"inset" to comic.extraParts?.inset,
-			"links" to comic.extraParts?.links,
-		)
-
 		// all fields directly on XkcdComicInfo are required
 
-		extraPartsFields.forEach { (fieldName, fieldList) ->
-			if (filter(optionalStringFields[fieldName])) {
-				fieldList += comic.id
+		extraPartsFields.forEach { (field, comicList) ->
+			if (filter(comic[field])) {
+				comicList += comic.id
 			}
 		}
 	}
@@ -85,17 +67,17 @@ fun ComicFieldCounter.generateReport(
 		println("$fieldName: ${comicList.size}")
 	}
 ) {
-	fields.forEach { (fieldName, comicList) ->
+	fields.forEach { (field, comicList) ->
 		if (comicList.isEmpty()) {
 			return@forEach
 		}
-		fieldPrinter(fieldName, comicList)
+		fieldPrinter(field.name, comicList)
 	}
 
-	extraPartsFields.forEach { (fieldName, comicList) ->
+	extraPartsFields.forEach { (field, comicList) ->
 		if (comicList.isEmpty()) {
 			return@forEach
 		}
-		fieldPrinter("extraParts.$fieldName", comicList)
+		fieldPrinter("ExtraParts.${field.name}", comicList)
 	}
 }

@@ -24,7 +24,7 @@ object ComicFieldCountAnalyzer : Analyzer("Comic Field Count") {
 		emptyRequiredFieldCounts.generateReport(::fieldPrinter)
 
 		println("\n====== Empty Optional Fields ======")
-		fieldPrinter("extraParts", extraPartsComics)
+		fieldPrinter("ExtraParts", extraPartsComics)
 		emptyOptionalFieldCounts.generateReport(::extraPartsFieldPrinter)
 
 		println("\n====== Non-empty Optional Fields ======")

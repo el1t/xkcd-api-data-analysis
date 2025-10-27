@@ -18,18 +18,16 @@ data class XkcdComicInfo(
 	val day: String,
 	@SerialName("extra_parts") val extraParts: ExtraParts? = null,
 ) {
-	companion object {
-		// starting from comic #826 https://xkcd.com/826/info.0.json
-		@Serializable
-		data class ExtraParts(
-			@SerialName("headerextra") val headerExtra: String,
-			val pre: String? = null,
-			val post: String? = null,
-			val imgAttr: String? = null,
-			// https://xkcd.com/1331/info.0.json
-			val inset: String? = null,
-			// https://xkcd.com/2288/info.0.json
-			val links: String? = null,
-		)
-	}
+	// starting from comic #826 https://xkcd.com/826/info.0.json
+	@Serializable
+	data class ExtraParts(
+		@SerialName("headerextra") val headerExtra: String,
+		val pre: String? = null,
+		val post: String? = null,
+		val imgAttr: String? = null,
+		// https://xkcd.com/1331/info.0.json
+		val inset: String? = null,
+		// https://xkcd.com/2288/info.0.json
+		val links: String? = null,
+	)
 }

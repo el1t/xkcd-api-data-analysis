@@ -1,41 +1,40 @@
 package co.tsung.xkcd.analyzer.analyzer
 
+import co.tsung.xkcd.analyzer.model.ComicRequiredApiField
+import co.tsung.xkcd.analyzer.model.ComicRequiredApiField.Companion.get
 import co.tsung.xkcd.analyzer.model.XkcdComicInfo
 
 object ComicFieldLengthAnalyzer : Analyzer("Comic Field Length") {
-	private var longestAltText = ComicField.EMPTY
-	private var longestLink = ComicField.EMPTY
-	private var longestNews = ComicField.EMPTY
-	private var longestTranscript = ComicField.EMPTY
-	private var longestSafeTitle = ComicField.EMPTY
+	private val longestFields = mutableMapOf(
+		ComicRequiredApiField.AltText to ComicField.EMPTY,
+		ComicRequiredApiField.Link to ComicField.EMPTY,
+		ComicRequiredApiField.News to ComicField.EMPTY,
+		ComicRequiredApiField.SafeTitle to ComicField.EMPTY,
+		ComicRequiredApiField.Transcript to ComicField.EMPTY,
+	)
 
 	override fun processComic(comic: XkcdComicInfo) {
-		if (comic.altText.length > longestAltText.fieldValue.length) {
-			longestAltText = ComicField(comic.id, comic.altText)
-		}
-		if (comic.link.length > longestNews.fieldValue.length) {
-			longestLink = ComicField(comic.id, comic.link)
-		}
-		if (comic.news.length > longestNews.fieldValue.length) {
-			longestNews = ComicField(comic.id, comic.news)
-		}
-		if (comic.safeTitle.length > longestSafeTitle.fieldValue.length) {
-			longestSafeTitle = ComicField(comic.id, comic.safeTitle)
-		}
-		if (comic.transcript.length > longestTranscript.fieldValue.length) {
-			longestTranscript = ComicField(comic.id, comic.transcript)
+		longestFields.entries.forEach { entry ->
+			val newValue = comic[entry.key]
+			val existingValue = entry.value.fieldValue
+			if (newValue.length > existingValue.length) {
+				entry.setValue(ComicField(comic.id, newValue))
+			}
 		}
 	}
 
 	override fun generateReport() {
-		println("Longest alt text (${longestAltText.comicId}): ${longestAltText.fieldValue}\n")
-		println("Longest link (${longestLink.comicId}): ${longestLink.fieldValue}\n")
-		println("Longest news (${longestNews.comicId}): ${longestNews.fieldValue}\n")
-		println("Longest safe title (${longestSafeTitle.comicId}): ${longestSafeTitle.fieldValue}\n")
-		println("Longest transcript (${longestTranscript.comicId}):")
-		println(" - ${longestTranscript.fieldValue.length} characters")
-		println(" - ${longestTranscript.fieldValue.count { it.isWhitespace() }} spaces")
-		println(" - ${longestTranscript.fieldValue.count { it == '\n' }} newlines")
+		longestFields.forEach { (field, value) ->
+			print("Longest ${field.name} (${value.comicId}):")
+			if ('\n' !in value.fieldValue) {
+				println(" ${value.fieldValue}\n")
+			} else {
+				println()
+				println(" - ${value.fieldValue.length} characters")
+				println(" - ${value.fieldValue.count { it.isWhitespace() }} spaces")
+				println(" - ${value.fieldValue.count { it == '\n' }} newlines")
+			}
+		}
 	}
 }
 
