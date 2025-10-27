@@ -8,6 +8,7 @@ import kotlinx.serialization.json.Json
 import kotlinx.serialization.json.decodeFromStream
 import kotlin.io.path.extension
 import kotlin.io.path.inputStream
+import kotlin.io.path.nameWithoutExtension
 import kotlin.io.path.walk
 
 private val ANALYZERS = listOf(
@@ -17,14 +18,17 @@ private val ANALYZERS = listOf(
 
 @OptIn(ExperimentalSerializationApi::class)
 fun main() {
-	COMICS_DIR.walk().filter { it.extension == "json" }.forEach { file ->
-		val comic = file.inputStream().use { stream ->
-			Json.decodeFromStream<XkcdComicInfo>(stream)
+	COMICS_DIR.walk()
+		.filter { it.extension == "json" }
+		.sortedBy { it.nameWithoutExtension.toIntOrNull() }
+		.forEach { file ->
+			val comic = file.inputStream().use { stream ->
+				Json.decodeFromStream<XkcdComicInfo>(stream)
+			}
+			ANALYZERS.forEach { analyzer ->
+				analyzer.processComic(comic)
+			}
 		}
-		ANALYZERS.forEach { analyzer ->
-			analyzer.processComic(comic)
-		}
-	}
 
 	ANALYZERS.forEach { analyzer ->
 		analyzer.printReport()

@@ -32,15 +32,10 @@ object ComicFieldCountAnalyzer : Analyzer("Comic Field Count") {
 	}
 
 	private fun fieldPrinter(fieldName: String, comicList: List<UInt>) {
-		print("$fieldName: ${comicList.size} / $totalComicCount ")
-		if (comicList.size > 50) {
-			println("%.2f%%".format(comicList.size * 100f / totalComicCount))
-		} else {
-			println("-> $comicList")
-		}
+		println("$fieldName (${comicList.size} / $totalComicCount): ${comicList.joinToString(limit = 50)}")
 	}
 
 	private fun extraPartsFieldPrinter(fieldName: String, comicList: List<UInt>) {
-		println("$fieldName: ${comicList.size} / ${extraPartsComics.size} -> $comicList")
+		println("$fieldName (${comicList.size} / ${extraPartsComics.size}): ${comicList.joinToString(limit = 50)}")
 	}
 }
