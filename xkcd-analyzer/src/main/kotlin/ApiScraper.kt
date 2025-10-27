@@ -14,7 +14,6 @@ import kotlinx.serialization.SerializationException
 import kotlinx.serialization.json.Json
 import kotlinx.serialization.json.encodeToStream
 import java.nio.file.Files
-import kotlin.io.path.Path
 import kotlin.io.path.exists
 import kotlin.io.path.outputStream
 import kotlin.system.exitProcess
@@ -36,7 +35,6 @@ suspend fun main() {
 	}
 }
 
-private val COMICS_DIR = Path("comics")
 private const val MAX_CONCURRENT_REQUESTS = 50
 private val INVALID_COMIC_IDS = setOf(
 	// comic #404 throws a 404 error
@@ -54,7 +52,7 @@ suspend fun scrapeComics(client: HttpClient, json: Json) {
 		.filterNot { it in INVALID_COMIC_IDS }
 		.filterNot { comicId -> COMICS_DIR.resolve("$comicId.json").exists() }
 
-	println("Comics on disk: ${lastComic.id - missingComics.size.toUInt()}")
+	println("Comics on disk: ${lastComic.id.toInt() - missingComics.size - INVALID_COMIC_IDS.size}")
 	println("Comics to download: ${missingComics.size}")
 	// Avoid printing too many numbers
 	if (missingComics.size in 1..MAX_CONCURRENT_REQUESTS) {

@@ -1,0 +1,31 @@
+package co.tsung.xkcd.analyzer
+
+import co.tsung.xkcd.analyzer.analyzer.Analyzer
+import co.tsung.xkcd.analyzer.analyzer.ComicFieldCountAnalyzer
+import co.tsung.xkcd.analyzer.model.XkcdComicInfo
+import kotlinx.serialization.ExperimentalSerializationApi
+import kotlinx.serialization.json.Json
+import kotlinx.serialization.json.decodeFromStream
+import kotlin.io.path.extension
+import kotlin.io.path.inputStream
+import kotlin.io.path.walk
+
+private val ANALYZERS = listOf<Analyzer>(
+	ComicFieldCountAnalyzer,
+)
+
+@OptIn(ExperimentalSerializationApi::class)
+fun main() {
+	COMICS_DIR.walk().filter { it.extension == "json" }.forEach { file ->
+		val comic = file.inputStream().use { stream ->
+			Json.decodeFromStream<XkcdComicInfo>(stream)
+		}
+		ANALYZERS.forEach { analyzer ->
+			analyzer.processComic(comic)
+		}
+	}
+
+	ANALYZERS.forEach { analyzer ->
+		analyzer.printReport()
+	}
+}

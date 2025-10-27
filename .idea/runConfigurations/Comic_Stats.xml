@@ -1,9 +1,8 @@
 <component name="ProjectRunConfigurationManager">
-  <configuration default="false" name="Api Scraper" type="JetRunConfigurationType">
-    <option name="MAIN_CLASS_NAME" value="co.tsung.xkcd.analyzer.ApiScraperKt" />
+  <configuration default="false" name="Comic Stats" type="JetRunConfigurationType">
+    <option name="MAIN_CLASS_NAME" value="co.tsung.xkcd.analyzer.ComicStatsKt" />
     <module name="xkcd-analyzer.main" />
     <shortenClasspath name="NONE" />
-    <option name="WORKING_DIRECTORY" value="$PROJECT_DIR$/" />
     <method v="2">
       <option name="Make" enabled="true" />
     </method>
