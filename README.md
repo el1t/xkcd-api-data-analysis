@@ -54,6 +54,11 @@ gif: 961, 1116, 1264, 2293, 2445
 ====== Image URL Basenames ======
 https://imgs.xkcd.com/comics/: 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16, 17, 18, 19, 20, 21, 22, 23, 24, 25, 26, 27, 28, 29, 30, 31, 32, 33, 34, 35, 36, 37, 38, 39, 40, 41, 42, 43, 44, 45, 46, 47, 48, 49, 50, ...
 https://imgs.xkcd.com/comics/landing/: 1446
+====== Small Images ======
+8: https://imgs.xkcd.com/comics/red_spiders_small.jpg
+13: https://imgs.xkcd.com/comics/canyon_small.jpg
+256: https://imgs.xkcd.com/comics/online_communities_small.png
+273: https://imgs.xkcd.com/comics/electromagnetic_spectrum_small.png
 
 ====== [Comic Link] ======
 ====== Hostnames ======
